@@ -28,6 +28,17 @@ class EventProfile(BaseModel):
     economic_context: Optional[str] = Field(None, description="Economic context")
     company_events: Optional[str] = Field(None, description="Company-specific events")
 
+    # Technical indicators
+    rsi: Optional[float] = Field(None, description="RSI value")
+    macd_signal: Optional[str] = Field(None, description="MACD signal (Bullish/Bearish)")
+    technical_signal: Optional[str] = Field(None, description="Overall technical signal")
+
+    # Related stocks analysis
+    sector: Optional[str] = Field(None, description="Stock sector")
+    sector_momentum: Optional[str] = Field(None, description="Sector momentum (Positive/Negative/Neutral)")
+    related_stocks_movement: Optional[Dict] = Field(None, description="Concurrent movements of related stocks")
+    correlations: Optional[Dict] = Field(None, description="Correlation with related stocks")
+
     # Embedding
     embedding: Optional[List[float]] = Field(None, description="Vector embedding")
 
@@ -72,6 +83,11 @@ class EventProfile(BaseModel):
             "sentiment_label": self.sentiment_label,
             "economic_context": self.economic_context,
             "company_events": self.company_events,
+            "rsi": self.rsi,
+            "macd_signal": self.macd_signal,
+            "technical_signal": self.technical_signal,
+            "sector": self.sector,
+            "sector_momentum": self.sector_momentum,
             "event_type": self.event_type,
             "significance": self.significance
         }
@@ -103,6 +119,32 @@ class EventProfile(BaseModel):
         if self.company_events:
             description += f"\nCompany Events: {self.company_events}"
 
+        # Technical indicators
+        if self.technical_signal:
+            description += f"\nTechnical Signal: {self.technical_signal}"
+        if self.rsi is not None:
+            description += f"\nRSI: {self.rsi:.1f}"
+        if self.macd_signal:
+            description += f"\nMACD: {self.macd_signal}"
+
+        # Related stocks context
+        if self.sector:
+            description += f"\nSector: {self.sector}"
+        if self.sector_momentum:
+            description += f"\nSector Momentum: {self.sector_momentum}"
+
+        if self.correlations:
+            top_correlated = sorted(
+                self.correlations.items(),
+                key=lambda x: abs(x[1]),
+                reverse=True
+            )[:3]
+            if top_correlated:
+                description += "\nHighly Correlated Stocks:"
+                for sym, corr in top_correlated:
+                    if abs(corr) > 0.5:
+                        description += f"\n  - {sym}: {corr:+.2f}"
+
         return description.strip()
 
 
@@ -127,6 +169,18 @@ class CurrentDayProfile(BaseModel):
     # Additional context
     market_context: Optional[str] = Field(None, description="Market context")
     recent_events: Optional[str] = Field(None, description="Recent company events")
+
+    # Technical indicators
+    rsi: Optional[float] = Field(None, description="RSI value")
+    macd_signal: Optional[str] = Field(None, description="MACD signal (Bullish/Bearish)")
+    technical_signal: Optional[str] = Field(None, description="Overall technical signal")
+
+    # Related stocks analysis
+    sector: Optional[str] = Field(None, description="Stock sector")
+    sector_momentum: Optional[str] = Field(None, description="Sector momentum (Positive/Negative/Neutral)")
+    related_stocks_movement: Optional[Dict] = Field(None, description="Current movements of related stocks")
+    correlations: Optional[Dict] = Field(None, description="Correlation with related stocks")
+    highly_correlated: Optional[List[str]] = Field(None, description="List of highly correlated stocks")
 
     # Embedding
     embedding: Optional[List[float]] = Field(None, description="Vector embedding")
@@ -164,6 +218,38 @@ class CurrentDayProfile(BaseModel):
 
         if self.recent_events:
             description += f"\nRecent Events: {self.recent_events}"
+
+        # Technical indicators
+        if self.technical_signal:
+            description += f"\nTechnical Signal: {self.technical_signal}"
+        if self.rsi is not None:
+            description += f"\nRSI: {self.rsi:.1f}"
+        if self.macd_signal:
+            description += f"\nMACD: {self.macd_signal}"
+
+        # Related stocks context
+        if self.sector:
+            description += f"\nSector: {self.sector}"
+        if self.sector_momentum:
+            description += f"\nSector Momentum: {self.sector_momentum}"
+
+        if self.highly_correlated:
+            description += f"\nHighly Correlated Stocks: {', '.join(self.highly_correlated)}"
+
+        if self.correlations:
+            top_correlated = sorted(
+                self.correlations.items(),
+                key=lambda x: abs(x[1]),
+                reverse=True
+            )[:3]
+            if top_correlated:
+                description += "\nKey Correlations:"
+                for sym, corr in top_correlated:
+                    if abs(corr) > 0.5:
+                        movement = ""
+                        if self.related_stocks_movement and sym in self.related_stocks_movement:
+                            movement = f" (today: {self.related_stocks_movement[sym]:+.2f}%)"
+                        description += f"\n  - {sym}: {corr:+.2f}{movement}"
 
         return description.strip()
 

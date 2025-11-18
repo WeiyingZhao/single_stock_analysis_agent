@@ -180,12 +180,29 @@ def generate_forecast(
             if m.next_day_change is not None
         ])
 
-        prompt = f"""Generate a forecast explanation based on this analysis:
+        # Build enhanced context
+        technical_context = ""
+        if current_profile.technical_signal:
+            technical_context = f"\n- Technical Signal: {current_profile.technical_signal}"
+            if current_profile.rsi is not None:
+                technical_context += f", RSI: {current_profile.rsi:.1f}"
+            if current_profile.macd_signal:
+                technical_context += f", MACD: {current_profile.macd_signal}"
+
+        sector_context = ""
+        if current_profile.sector:
+            sector_context = f"\n- Sector: {current_profile.sector}"
+            if current_profile.sector_momentum:
+                sector_context += f", Sector Momentum: {current_profile.sector_momentum}"
+            if current_profile.highly_correlated:
+                sector_context += f"\n- Highly Correlated Stocks: {', '.join(current_profile.highly_correlated[:3])}"
+
+        prompt = f"""Generate a forecast explanation based on this comprehensive analysis:
 
 Current Conditions:
 - Date: {current_profile.date.strftime('%Y-%m-%d')}
 - Sentiment: {current_profile.sentiment_label}
-- News: {current_profile.news_summary[:200]}
+- News: {current_profile.news_summary[:200]}{technical_context}{sector_context}
 
 Similar Historical Events (Top 5):
 {matches_summary}
@@ -197,7 +214,7 @@ Confidence: {confidence_score:.1%}
 Provide a clear, 3-4 sentence explanation for this prediction. Explain:
 1. Why current conditions match these historical events
 2. What happened after similar events in the past
-3. Key factors supporting this prediction
+3. Key factors supporting this prediction (including technical and sector analysis if relevant)
 """
 
         result = agent.invoke({"messages": [("user", prompt)]})
@@ -217,6 +234,18 @@ Provide a clear, 3-4 sentence explanation for this prediction. Explain:
         f"Historical average outcome: {avg_next_day:+.2f}%",
         f"Based on {len(matched_events)} similar events"
     ]
+
+    # Add technical factors if available
+    if current_profile.technical_signal:
+        key_factors.append(f"Technical analysis: {current_profile.technical_signal}")
+
+    # Add sector factors if available
+    if current_profile.sector_momentum:
+        key_factors.append(f"Sector momentum: {current_profile.sector_momentum}")
+
+    # Add correlation info if available
+    if current_profile.highly_correlated and len(current_profile.highly_correlated) > 0:
+        key_factors.append(f"High correlation with: {', '.join(current_profile.highly_correlated[:2])}")
 
     # Determine risk level
     if confidence_score >= 0.75:

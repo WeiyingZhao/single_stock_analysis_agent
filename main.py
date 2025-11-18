@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """
-Tesla Stock Analysis and Forecasting System - Main Entry Point
+Stock Analysis and Forecasting System - Main Entry Point
 
-This script runs the daily forecast workflow using the multi-agent system.
+Multi-agent AI system for stock forecasting using historical pattern matching,
+technical indicators, sector correlation analysis, and related stock movements.
+
+Supports any stock symbol - just initialize the database for the target stock.
 
 Usage:
     python main.py [--symbol SYMBOL] [--status] [--save]
@@ -10,6 +13,8 @@ Usage:
 Example:
     python main.py                  # Run forecast for default symbol
     python main.py --symbol TSLA    # Run forecast for TSLA
+    python main.py --symbol AAPL    # Run forecast for AAPL
+    python main.py --symbol NVDA    # Run forecast for NVDA
     python main.py --status         # Show system status only
     python main.py --save output.txt  # Save forecast to file
 """
@@ -28,12 +33,17 @@ def main():
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(
-        description='Tesla Stock Analysis and Forecasting System',
+        description='Stock Analysis and Forecasting System - AI-Powered Multi-Agent Platform',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Run daily forecast
+  # Run daily forecast for default symbol
   python main.py
+
+  # Analyze specific stocks
+  python main.py --symbol AAPL
+  python main.py --symbol NVDA
+  python main.py --symbol MSFT
 
   # Check system status
   python main.py --status
@@ -41,13 +51,11 @@ Examples:
   # Run forecast and save to file
   python main.py --save forecast_2024-01-20.txt
 
-  # Run for different symbol
-  python main.py --symbol AAPL
-
 Notes:
-  - The system must be initialized first (run initialize_db.py)
+  - The system must be initialized first (run initialize_db.py --symbol SYMBOL)
   - Requires GOOGLE_API_KEY in .env file
   - Uses free Yahoo Finance data
+  - Supports any stock symbol with sufficient historical data
         """
     )
 
@@ -90,11 +98,13 @@ Notes:
     # Display header
     if not args.quiet:
         print(f"\n{'='*80}")
-        print("TESLA STOCK ANALYSIS AND FORECASTING SYSTEM")
+        print("STOCK ANALYSIS AND FORECASTING SYSTEM")
+        print("AI-Powered Multi-Agent Platform")
         print(f"{'='*80}\n")
         print(f"Symbol: {args.symbol}")
         print(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"LLM Model: {Config.LLM_MODEL}")
+        print(f"Features: Technical Indicators, Sector Analysis, Pattern Matching")
         print(f"{'='*80}\n")
 
     # Check if system is initialized

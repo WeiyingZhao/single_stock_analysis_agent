@@ -17,6 +17,8 @@ from utils.analysis import (
 )
 from utils.embeddings import generate_text_embedding
 from tools.vector_store import VectorStoreManager
+from tools.technical_indicators import get_technical_analysis, interpret_technical_signals
+from tools.related_stocks import analyze_related_stocks_on_date
 
 
 def create_event_identifier_agent():
@@ -234,6 +236,53 @@ Provide a factual summary of what likely caused this price movement. Focus on th
     # Categorize event type
     event_type = categorize_event_type(row['Pct_Change'], generated_summary)
 
+    # Technical indicators analysis (if enabled)
+    rsi_value = None
+    macd_signal = None
+    technical_signal = None
+
+    if Config.ENABLE_TECHNICAL_INDICATORS:
+        try:
+            # Get data up to this date for technical analysis
+            date_loc = df.index.get_loc(date)
+            if date_loc >= 50:  # Need at least 50 days for meaningful technical analysis
+                historical_subset = df.iloc[:date_loc + 1]
+                tech_analysis = get_technical_analysis(historical_subset)
+
+                if 'rsi' in tech_analysis:
+                    rsi_value = tech_analysis['rsi']['value']
+
+                if 'macd' in tech_analysis:
+                    macd_signal = tech_analysis['macd']['trend']
+
+                interpretation = interpret_technical_signals(tech_analysis)
+                technical_signal = interpretation['overall']
+
+        except Exception as e:
+            print(f"      Warning: Could not analyze technical indicators: {e}")
+
+    # Related stocks analysis (if enabled)
+    sector = None
+    sector_momentum = None
+    correlations = None
+    related_movements = None
+
+    if Config.ENABLE_RELATED_STOCKS:
+        try:
+            related_analysis = analyze_related_stocks_on_date(
+                symbol,
+                date,
+                lookback_days=Config.RELATED_STOCKS_LOOKBACK_DAYS
+            )
+
+            sector = related_analysis.get('sector')
+            sector_momentum = related_analysis.get('sector_momentum')
+            correlations = related_analysis.get('correlations')
+            related_movements = related_analysis.get('concurrent_movements')
+
+        except Exception as e:
+            print(f"      Warning: Could not analyze related stocks: {e}")
+
     # Create the event profile
     event_profile = EventProfile(
         event_id=event_id,
@@ -249,7 +298,16 @@ Provide a factual summary of what likely caused this price movement. Focus on th
         sentiment_score=sentiment_score,
         sentiment_label=sentiment_label,
         event_type=event_type,
-        significance="High"
+        significance="High",
+        # Technical indicators
+        rsi=rsi_value,
+        macd_signal=macd_signal,
+        technical_signal=technical_signal,
+        # Related stocks
+        sector=sector,
+        sector_momentum=sector_momentum,
+        correlations=correlations,
+        related_stocks_movement=related_movements
     )
 
     # Generate embedding
