@@ -6,10 +6,12 @@ from typing import Dict
 
 from config import Config
 from models.event_profile import CurrentDayProfile
-from tools.stock_data import get_current_data_df
+from tools.stock_data import get_current_data_df, get_historical_data_df
 from tools.news_scraper import scrape_yahoo_news
 from tools.sentiment import get_market_sentiment_summary
 from utils.embeddings import generate_text_embedding
+from tools.technical_indicators import get_technical_analysis, interpret_technical_signals
+from tools.related_stocks import get_current_related_stocks_status
 
 
 def create_realtime_analyzer_agent():
@@ -150,8 +152,61 @@ Provide a concise narrative summary of the current market situation, key themes,
         else:
             news_summary = f"Limited news available for {symbol} today."
 
-    # Step 5: Create Current Day Profile
-    print("\nStep 5: Creating current day profile...")
+    # Step 5: Technical indicators analysis (if enabled)
+    rsi_value = None
+    macd_signal = None
+    technical_signal = None
+
+    if Config.ENABLE_TECHNICAL_INDICATORS:
+        print("\nStep 5: Analyzing technical indicators...")
+        try:
+            # Get historical data for technical analysis
+            historical_df = get_historical_data_df(symbol, years=1)
+            if len(historical_df) >= 50:
+                tech_analysis = get_technical_analysis(historical_df)
+
+                if 'rsi' in tech_analysis:
+                    rsi_value = tech_analysis['rsi']['value']
+                    print(f"  ✓ RSI: {rsi_value:.1f}")
+
+                if 'macd' in tech_analysis:
+                    macd_signal = tech_analysis['macd']['trend']
+                    print(f"  ✓ MACD: {macd_signal}")
+
+                interpretation = interpret_technical_signals(tech_analysis)
+                technical_signal = interpretation['overall']
+                print(f"  ✓ Technical Signal: {technical_signal}")
+        except Exception as e:
+            print(f"  ⚠ Warning: Could not analyze technical indicators: {e}")
+
+    # Step 6: Related stocks analysis (if enabled)
+    sector = None
+    sector_momentum = None
+    correlations = None
+    related_movements = None
+    highly_correlated = None
+
+    if Config.ENABLE_RELATED_STOCKS:
+        print("\nStep 6: Analyzing related stocks...")
+        try:
+            related_analysis = get_current_related_stocks_status(symbol)
+
+            sector = related_analysis.get('sector')
+            sector_momentum = related_analysis.get('sector_momentum')
+            correlations = related_analysis.get('correlations')
+            related_movements = related_analysis.get('current_movements')
+            highly_correlated = related_analysis.get('highly_correlated', [])
+
+            print(f"  ✓ Sector: {sector}")
+            print(f"  ✓ Sector Momentum: {sector_momentum}")
+            if highly_correlated:
+                print(f"  ✓ Highly Correlated: {', '.join(highly_correlated[:3])}")
+        except Exception as e:
+            print(f"  ⚠ Warning: Could not analyze related stocks: {e}")
+
+    # Step 7: Create Current Day Profile
+    step_num = 7 if Config.ENABLE_TECHNICAL_INDICATORS or Config.ENABLE_RELATED_STOCKS else 5
+    print(f"\nStep {step_num}: Creating current day profile...")
     current_profile = CurrentDayProfile(
         date=datetime.now(),
         symbol=symbol,
@@ -163,11 +218,22 @@ Provide a concise narrative summary of the current market situation, key themes,
         news_summary=news_summary,
         sentiment_score=sentiment_score,
         sentiment_label=sentiment_label,
-        market_context=f"Analysis based on {len(articles)} news sources"
+        market_context=f"Analysis based on {len(articles)} news sources",
+        # Technical indicators
+        rsi=rsi_value,
+        macd_signal=macd_signal,
+        technical_signal=technical_signal,
+        # Related stocks
+        sector=sector,
+        sector_momentum=sector_momentum,
+        correlations=correlations,
+        related_stocks_movement=related_movements,
+        highly_correlated=highly_correlated
     )
 
-    # Step 6: Generate embedding
-    print("Step 6: Generating embedding...")
+    # Step 8: Generate embedding
+    step_num += 1
+    print(f"Step {step_num}: Generating embedding...")
     text_description = current_profile.to_text_description()
     embedding = generate_text_embedding(text_description)
     current_profile.embedding = embedding

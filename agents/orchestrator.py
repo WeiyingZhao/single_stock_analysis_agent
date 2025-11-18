@@ -43,12 +43,14 @@ class OrchestratorAgent:
             Dictionary with initialization results
         """
         print(f"\n{'='*80}")
-        print(f"INITIALIZING TESLA STOCK ANALYSIS SYSTEM")
+        print(f"INITIALIZING STOCK ANALYSIS SYSTEM")
         print(f"{'='*80}\n")
         print(f"Symbol: {self.symbol}")
         print(f"Historical Period: {years or Config.HISTORICAL_YEARS} years")
         print(f"Significance Threshold: {Config.SIGNIFICANT_CHANGE_THRESHOLD}%")
         print(f"Similarity Threshold: {Config.SIMILARITY_THRESHOLD}")
+        print(f"Technical Indicators: {'Enabled' if Config.ENABLE_TECHNICAL_INDICATORS else 'Disabled'}")
+        print(f"Related Stocks Analysis: {'Enabled' if Config.ENABLE_RELATED_STOCKS else 'Disabled'}")
         print(f"\nThis may take several minutes...\n")
 
         # Run the event identifier agent

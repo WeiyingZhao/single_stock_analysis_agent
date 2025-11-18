@@ -20,9 +20,14 @@ class Config:
     SIMILARITY_THRESHOLD = float(os.getenv("SIMILARITY_THRESHOLD", "0.85"))
     CONTEXT_WINDOW_HOURS = int(os.getenv("CONTEXT_WINDOW_HOURS", "72"))
 
+    # Enhanced Analysis Features
+    ENABLE_TECHNICAL_INDICATORS = os.getenv("ENABLE_TECHNICAL_INDICATORS", "true").lower() == "true"
+    ENABLE_RELATED_STOCKS = os.getenv("ENABLE_RELATED_STOCKS", "true").lower() == "true"
+    RELATED_STOCKS_LOOKBACK_DAYS = int(os.getenv("RELATED_STOCKS_LOOKBACK_DAYS", "30"))
+
     # Vector Database
     CHROMA_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
-    COLLECTION_NAME = os.getenv("COLLECTION_NAME", "tesla_events")
+    COLLECTION_NAME = os.getenv("COLLECTION_NAME", "stock_events")  # Changed from tesla_events to be more general
 
     # Embedding Model
     EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
