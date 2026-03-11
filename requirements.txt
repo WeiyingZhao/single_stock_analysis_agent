@@ -1,31 +1,48 @@
-# LangChain Core and Framework
-langchain>=0.1.0
-langchain-core>=0.1.0
-langgraph>=0.0.20
-langchain-google-genai>=1.0.0
+# Stock Analysis Multi-Agent System - Production Dependencies
+# Generated from pyproject.toml
+# For development dependencies, install with: pip install -e ".[dev]"
 
+# ==============================================================================
+# LangChain Core - AI Agent Framework
+# ==============================================================================
+langchain~=0.3.0
+langchain-core~=0.3.0
+langgraph~=0.2.0
+langchain-google-genai~=2.0.0
+
+# ==============================================================================
 # Vector Database
-chromadb>=0.4.22
+# ==============================================================================
+chromadb~=0.5.0
 
-# Stock Data
-yfinance>=0.2.35
+# ==============================================================================
+# Stock Data & Web Scraping
+# ==============================================================================
+yfinance~=0.2.40
+beautifulsoup4~=4.12.0
+requests~=2.32.0
+lxml~=5.2.0
 
-# Web Scraping and News
-beautifulsoup4>=4.12.0
-requests>=2.31.0
-lxml>=5.1.0
-
+# ==============================================================================
 # Data Processing
-pandas>=2.2.0
-numpy>=1.26.0,<2.0.0  # Pin to 1.x for PyTorch compatibility
+# ==============================================================================
+pandas~=2.2.0
+numpy>=1.26.0,<2.0.0
 
+# ==============================================================================
 # NLP and Embeddings
-sentence-transformers>=2.3.0
-nltk>=3.8.0
+# ==============================================================================
+sentence-transformers~=3.0.0
+nltk~=3.9.0
 
+# ==============================================================================
 # Configuration
-python-dotenv>=1.0.0
+# ==============================================================================
+python-dotenv~=1.0.0
 
-# Utilities
-pydantic>=2.6.0
-python-dateutil>=2.8.2
+# ==============================================================================
+# Data Validation
+# ==============================================================================
+pydantic~=2.10.0
+pydantic-settings~=2.6.0
+python-dateutil~=2.9.0

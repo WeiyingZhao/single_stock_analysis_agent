@@ -1,0 +1,114 @@
+# Pre-commit hooks for code quality enforcement
+# Install: pip install pre-commit
+# Setup: pre-commit install
+# Run manually: pre-commit run --all-files
+# Docs: https://pre-commit.com/
+
+repos:
+  # Ruff - Ultra-fast Python linter and formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      # Run the linter
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      # Run the formatter
+      - id: ruff-format
+
+  # Mypy - Static type checker
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-requests
+          - types-beautifulsoup4
+          - types-python-dateutil
+          - pandas-stubs
+          - pydantic
+        args: [--config-file=pyproject.toml]
+        exclude: ^tests/
+
+  # General file cleanup hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      # Prevent giant files from being committed
+      - id: check-added-large-files
+        args: [--maxkb=5000]
+
+      # Check for files that would conflict in case-insensitive filesystems
+      - id: check-case-conflict
+
+      # Check for merge conflicts
+      - id: check-merge-conflict
+
+      # Check for debugger imports and breakpoint() calls
+      - id: debug-statements
+
+      # Check YAML syntax
+      - id: check-yaml
+        args: [--safe]
+
+      # Check TOML syntax
+      - id: check-toml
+
+      # Check JSON syntax
+      - id: check-json
+
+      # Ensure files end with newline
+      - id: end-of-file-fixer
+        exclude: ^\.env\.example$
+
+      # Trim trailing whitespace
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+
+      # Prevent committing to main/master
+      - id: no-commit-to-branch
+        args: [--branch, main, --branch, master]
+
+      # Check for private keys
+      - id: detect-private-key
+
+  # Security check for hardcoded secrets
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: |
+          (?x)^(
+            \.env\.example|
+            package-lock\.json|
+            poetry\.lock|
+            requirements\.lock|
+            .*\.ipynb
+          )$
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.43.0
+    hooks:
+      - id: markdownlint
+        args: [--fix]
+
+  # Dockerfile linting
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        args: [--ignore, DL3008, --ignore, DL3013]
+
+# Configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

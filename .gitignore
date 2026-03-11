@@ -1,18 +1,27 @@
+# ============================================================================
 # Python
+# ============================================================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 
-# Virtual environments
+# ============================================================================
+# Virtual Environments
+# ============================================================================
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+.venv/
+.conda/
+.pyenv/
 
-# Distribution / packaging
+# ============================================================================
+# Distribution / Packaging
+# ============================================================================
 .Python
 build/
 develop-eggs/
@@ -26,41 +35,122 @@ parts/
 sdist/
 var/
 wheels/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
+pip-wheel-metadata/
 
 # PyInstaller
 *.manifest
 *.spec
 
-# Unit test / coverage
-htmlcov/
-.tox/
+# ============================================================================
+# Testing & Coverage
+# ============================================================================
+.pytest_cache/
 .coverage
 .coverage.*
-.cache
-nosetests.xml
+htmlcov/
+.tox/
+.nox/
 coverage.xml
 *.cover
-.pytest_cache/
-
-# Project specific
-chroma_db/
-.env
 *.log
+.hypothesis/
+.cache
+nosetests.xml
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# ============================================================================
+# Type Checking & Linting
+# ============================================================================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pytype/
+pyrightconfig.json
 
-# IDE
+# ============================================================================
+# AI/ML Specific
+# ============================================================================
+# Vector databases
+chroma_db/
+*.db
+*.sqlite
+*.sqlite3
+
+# Model files
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+*.pt
+*.pth
+*.onnx
+*.pb
+*.safetensors
+
+# Datasets
+data/
+datasets/
+*.csv
+*.parquet
+*.feather
+*.arrow
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Weights & Biases
+wandb/
+
+# ============================================================================
+# Environment & Secrets
+# ============================================================================
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.crt
+secrets/
+.secrets.baseline
+
+# ============================================================================
+# IDEs & Editors
+# ============================================================================
+# VSCode
 .vscode/
+*.code-workspace
+
+# PyCharm
 .idea/
+*.iml
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
 *.swp
 *.swo
 *~
 
-# OS
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ============================================================================
+# OS Files
+# ============================================================================
 .DS_Store
 .DS_Store?
 ._*
@@ -69,7 +159,44 @@ chroma_db/
 ehthumbs.db
 Thumbs.db
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# ============================================================================
+# Build & Deployment
+# ============================================================================
+*.tar.gz
+*.zip
+docker-compose.override.yml
+.docker/
+
+# ============================================================================
+# Logs & Temp Files
+# ============================================================================
+*.log
+*.tmp
+tmp/
+temp/
+logs/
+
+# ============================================================================
+# Documentation
+# ============================================================================
+site/
+docs/_build/
+.doctrees/
+
+# ============================================================================
+# Cache & Package Managers
+# ============================================================================
+.cache/
+.npm/
+node_modules/
+package-lock.json
+yarn.lock
+.pnpm-store/
+
+# uv
+.uv/
+
+# ============================================================================
+# CI/CD
+# ============================================================================
+.github/workflows/*.log
